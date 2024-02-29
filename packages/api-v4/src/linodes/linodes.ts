@@ -44,6 +44,22 @@ export const getLinodeLishToken = (linodeId: number) =>
   );
 
 /**
+ * getLinodeLish
+ *
+ * Generates urls and websockets protocols to authenticate with LISH.
+ *
+ * @param linodeId { number } The id of the Linode.
+ */
+export const getLinodeLish = (linodeId: number) =>
+  Request<{ weblish_url: string, glish_url: string, monitor_url: string,
+            ws_protocols: string[] }>(
+    setURL(
+      `${API_ROOT}/linode/instances/${encodeURIComponent(linodeId)}/lish`
+    ),
+    setMethod('POST')
+  );
+
+/**
  * getLinodeVolumes
  *
  * Returns a paginated list of Block Storage volumes attached to the

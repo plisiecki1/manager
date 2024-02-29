@@ -12,6 +12,7 @@ import {
   deleteLinode,
   getLinode,
   getLinodeKernel,
+  getLinodeLish,
   getLinodeLishToken,
   getLinodes,
   linodeBoot,
@@ -124,6 +125,16 @@ export const useLinodeKernelQuery = (kernel: string) => {
   return useQuery<Kernel, APIError[]>(
     [queryKey, 'linode', 'kernels', 'kernel', kernel],
     () => getLinodeKernel(kernel)
+  );
+};
+
+export const useLinodeLishQuery = (id: number) => {
+  return useQuery<{ weblish_url: string, glish_url: string,
+                    monitor_url: string, ws_protocols: string[] },
+                    APIError[]>(
+    [queryKey, 'linode', id, 'lish'],
+    () => getLinodeLish(id),
+    { staleTime: Infinity }
   );
 };
 
