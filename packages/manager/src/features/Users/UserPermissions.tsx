@@ -3,6 +3,7 @@ import {
   GrantLevel,
   GrantType,
   Grants,
+  User,
   getGrants,
   getUser,
   updateGrants,
@@ -11,10 +12,10 @@ import {
 import { APIError } from '@linode/api-v4/lib/types';
 import { Paper } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
+import { QueryClient } from '@tanstack/react-query';
 import { WithSnackbarProps, withSnackbar } from 'notistack';
 import { compose, flatten, lensPath, omit, set } from 'ramda';
 import * as React from 'react';
-import { QueryClient } from '@tanstack/react-query';
 import { compose as recompose } from 'recompose';
 
 import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
@@ -41,7 +42,8 @@ import {
   WithQueryClientProps,
   withQueryClient,
 } from 'src/containers/withQueryClient.container';
-import { grantTypeMap } from 'src/features/Account/constants';
+import { PARENT_USER, grantTypeMap } from 'src/features/Account/constants';
+import { accountQueries } from 'src/queries/account/queries';
 import { getAPIErrorOrDefault } from 'src/utilities/errorUtils';
 import { getAPIErrorFor } from 'src/utilities/getAPIErrorFor';
 import { scrollErrorIntoView } from 'src/utilities/scrollErrorIntoView';
@@ -295,13 +297,17 @@ class UserPermissions extends React.Component<CombinedProps, State> {
           this.setState({
             restricted: user.restricted,
           });
-          this.props.queryClient.invalidateQueries(['account', 'users']);
-        })
-        .then(() => {
+          // refresh the data on /account/users so it is accurate
+          this.props.queryClient.invalidateQueries(
+            accountQueries.users._ctx.paginated._def
+          );
+          // Update the user directly in the cache
+          this.props.queryClient.setQueryData<User>(
+            accountQueries.users._ctx.user(user.username).queryKey,
+            user
+          );
           // unconditionally sets this.state.loadingGrants to false
           this.getUserGrants();
-          // refresh the data on /account/users so it is accurate
-          this.props.queryClient.invalidateQueries(['account', 'users']);
           this.props.enqueueSnackbar('User permissions successfully saved.', {
             variant: 'success',
           });
@@ -436,8 +442,14 @@ class UserPermissions extends React.Component<CombinedProps, State> {
             sx={{ margin: 0, width: 'auto' }}
           >
             <StyledHeaderGrid>
-              <Typography data-qa-restrict-access={restricted} variant="h2">
-                {isProxyUser ? 'Business Partner' : 'General'} Permissions
+              <Typography
+                sx={{
+                  textTransform: 'capitalize',
+                }}
+                data-qa-restrict-access={restricted}
+                variant="h2"
+              >
+                {isProxyUser ? PARENT_USER : 'General'} Permissions
               </Typography>
             </StyledHeaderGrid>
             <StyledSubHeaderGrid>
@@ -713,6 +725,13 @@ class UserPermissions extends React.Component<CombinedProps, State> {
             {
               variant: 'success',
             }
+          );
+
+          // Update the user's grants directly in the cache
+          this.props.queryClient.setQueriesData<Grants>(
+            accountQueries.users._ctx.user(currentUsername)._ctx.grants
+              .queryKey,
+            grantsResponse
           );
         })
         .catch((errResponse) => {

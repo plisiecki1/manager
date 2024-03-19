@@ -1,7 +1,7 @@
 import { fireEvent } from '@testing-library/react';
 import * as React from 'react';
 
-import { rest, server } from 'src/mocks/testServer';
+import { HttpResponse, http, server } from 'src/mocks/testServer';
 import { renderWithTheme } from 'src/utilities/testHelpers';
 
 import {
@@ -28,12 +28,10 @@ describe('Kubernetes deletion dialog', () => {
 
   it('should not be able to submit form before the user fills out confirmation text', async () => {
     server.use(
-      rest.get(`*/profile/preference`, (req, res, ctx) => {
-        return res(
-          ctx.json({
-            type_to_confirm: true,
-          })
-        );
+      http.get(`*/profile/preference`, () => {
+        return HttpResponse.json({
+          type_to_confirm: true,
+        });
       })
     );
 
@@ -42,13 +40,13 @@ describe('Kubernetes deletion dialog', () => {
     );
     const button = getByTestId('confirm');
 
-    expect(button).toHaveAttribute('aria-disabled', 'true');
+    expect(button).toBeDisabled;
 
     await findByTestId('textfield-input');
 
     const input = getByTestId('textfield-input');
     fireEvent.change(input, { target: { value: 'this-cluster' } });
 
-    expect(button).toHaveAttribute('aria-disabled', 'false');
+    expect(button).toBeEnabled();
   });
 });

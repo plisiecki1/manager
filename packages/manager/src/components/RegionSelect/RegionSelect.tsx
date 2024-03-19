@@ -6,7 +6,7 @@ import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Flag } from 'src/components/Flag';
 import { Link } from 'src/components/Link';
 import { TooltipIcon } from 'src/components/TooltipIcon';
-import { useAccountAvailabilitiesQueryUnpaginated } from 'src/queries/accountAvailability';
+import { useAllAccountAvailabilitiesQuery } from 'src/queries/account/availability';
 
 import { RegionOption } from './RegionOption';
 import {
@@ -36,22 +36,22 @@ export const RegionSelect = React.memo((props: RegionSelectProps) => {
     currentCapability,
     disabled,
     errorText,
-    geckoEnabled,
     handleSelection,
     helperText,
     isClearable,
     label,
+    regionFilter,
     regions,
     required,
     selectedId,
-    showGeckoHelperText,
+    showEdgeIconHelperText,
     width,
   } = props;
 
   const {
     data: accountAvailability,
     isLoading: accountAvailabilityLoading,
-  } = useAccountAvailabilitiesQueryUnpaginated();
+  } = useAllAccountAvailabilitiesQuery();
 
   const regionFromSelectedId: RegionSelectOption | null =
     getSelectedRegionById({
@@ -84,10 +84,10 @@ export const RegionSelect = React.memo((props: RegionSelectProps) => {
       getRegionOptions({
         accountAvailabilityData: accountAvailability,
         currentCapability,
-        hideEdgeServers: !geckoEnabled,
+        regionFilter,
         regions,
       }),
-    [accountAvailability, currentCapability, regions, geckoEnabled]
+    [accountAvailability, currentCapability, regions, regionFilter]
   );
 
   return (
@@ -110,7 +110,7 @@ export const RegionSelect = React.memo((props: RegionSelectProps) => {
           return (
             <RegionOption
               displayEdgeServerIcon={
-                geckoEnabled && option.site_type === 'edge'
+                regionFilter !== 'core' && option.site_type === 'edge'
               }
               key={option.value}
               option={option}
@@ -125,7 +125,7 @@ export const RegionSelect = React.memo((props: RegionSelectProps) => {
         })}
         textFieldProps={{
           InputProps: {
-            endAdornment: geckoEnabled &&
+            endAdornment: regionFilter !== 'core' &&
               selectedRegion?.site_type === 'edge' && (
                 <TooltipIcon
                   icon={<EdgeServer />}
@@ -159,7 +159,7 @@ export const RegionSelect = React.memo((props: RegionSelectProps) => {
         placeholder="Select a Region"
         value={selectedRegion}
       />
-      {showGeckoHelperText && ( // @TODO Gecko MVP: Add docs link
+      {showEdgeIconHelperText && ( // @TODO Gecko Beta: Add docs link
         <StyledEdgeBox>
           <EdgeServer />
           <Typography

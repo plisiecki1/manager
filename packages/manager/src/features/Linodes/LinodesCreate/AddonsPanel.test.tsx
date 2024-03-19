@@ -2,7 +2,7 @@ import { waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { imageFactory, linodeTypeFactory } from 'src/factories';
-import { rest, server } from 'src/mocks/testServer';
+import { http, HttpResponse, server } from 'src/mocks/testServer';
 import { getMonthlyBackupsPrice } from 'src/utilities/pricing/backups';
 import { renderWithTheme, wrapWithTheme } from 'src/utilities/testHelpers';
 
@@ -193,8 +193,8 @@ const attachVLANTestId = 'attach-vlan';
 describe('AddonsPanel', () => {
   beforeEach(() => {
     server.use(
-      rest.get('*/images/*', (req, res, ctx) => {
-        return res(ctx.json(imageFactory.build()));
+      http.get('*/images/*', () => {
+        return HttpResponse.json(imageFactory.build());
       })
     );
   });
@@ -323,5 +323,28 @@ describe('AddonsPanel', () => {
         wrapper.queryByTestId(privateIPContextualCopyTestId)
       ).not.toBeInTheDocument();
     });
+  });
+
+  it('should render a warning notice if isEdgeRegionSelected is true and disable backups and private ip checkbox', () => {
+    const propsWithEdgeRegionSelected = {
+      ...props,
+      isEdgeRegionSelected: true,
+    };
+    const { getByTestId } = renderWithTheme(
+      <AddonsPanel {...propsWithEdgeRegionSelected} />
+    );
+    expect(getByTestId('notice-warning')).toBeInTheDocument();
+    expect(getByTestId('private_ip')).toHaveAttribute('aria-disabled', 'true');
+    expect(getByTestId('backups')).toHaveAttribute('aria-disabled', 'true');
+  });
+  it('should not render a warning notice if isEdgeRegionSelected is false', () => {
+    const propsWithEdgeRegionNotSelected = {
+      ...props,
+      isEdgeRegionSelected: false,
+    };
+    const { queryByTestId } = renderWithTheme(
+      <AddonsPanel {...propsWithEdgeRegionNotSelected} />
+    );
+    expect(queryByTestId('notice-warning')).not.toBeInTheDocument();
   });
 });
