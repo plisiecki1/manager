@@ -3,6 +3,7 @@ import { AFFINITY_TYPES } from '@linode/api-v4/lib/placement-groups';
 import type {
   AffinityEnforcement,
   CreatePlacementGroupPayload,
+  Linode,
   PlacementGroup,
   Region,
 } from '@linode/api-v4';
@@ -10,19 +11,26 @@ import type {
 /**
  * Helper to get the affinity enforcement readable string.
  */
-export const getAffinityEnforcement = (
+export const getAffinityTypeEnforcement = (
   is_strict: boolean
 ): AffinityEnforcement => {
   return is_strict ? 'Strict' : 'Flexible';
 };
 
 /**
- * Helper to get the number of Linodes in a Placement Group.
+ * Helper to get the full linodes objects assigned to a Placement Group.
  */
-export const getPlacementGroupLinodeCount = (
-  placementGroup: PlacementGroup
-): number => {
-  return placementGroup.linodes.length;
+export const getPlacementGroupLinodes = (
+  placementGroup: PlacementGroup | undefined,
+  linodes: Linode[] | undefined
+) => {
+  if (!placementGroup || !linodes) {
+    return;
+  }
+
+  return linodes.filter((linode) =>
+    placementGroup.members.some((pgLinode) => pgLinode.linode_id === linode.id)
+  );
 };
 
 interface HasPlacementGroupReachedCapacityOptions {
@@ -43,9 +51,7 @@ export const hasPlacementGroupReachedCapacity = ({
     return false;
   }
 
-  return (
-    getPlacementGroupLinodeCount(placementGroup) >= region.maximum_vms_per_pg
-  );
+  return placementGroup.members.length >= region.maximum_vms_per_pg;
 };
 
 interface HasRegionReachedPlacementGroupCapacityOptions {
@@ -100,7 +106,10 @@ export const getLinodesFromAllPlacementGroups = (
   }
 
   const linodeIds = allPlacementGroups.reduce((acc, placementGroup) => {
-    return [...acc, ...placementGroup.linodes.map((linode) => linode.linode)];
+    return [
+      ...acc,
+      ...placementGroup.members.map((member) => member.linode_id),
+    ];
   }, []);
 
   return Array.from(new Set(linodeIds));
