@@ -172,7 +172,7 @@ export const useDeleteLinodeMutation = (id: number) => {
         queryClient.invalidateQueries(
           placementGroupQueries.placementGroup(placementGroupId).queryKey
         );
-        queryClient.invalidateQueries(placementGroupQueries.all.queryKey);
+        queryClient.invalidateQueries(placementGroupQueries.all._def);
         queryClient.invalidateQueries(placementGroupQueries.paginated._def);
       }
     },
@@ -206,7 +206,7 @@ export const useCreateLinodeMutation = () => {
           placementGroupQueries.placementGroup(variables.placement_group.id)
             .queryKey
         );
-        queryClient.invalidateQueries(placementGroupQueries.all.queryKey);
+        queryClient.invalidateQueries(placementGroupQueries.all._def);
         queryClient.invalidateQueries(placementGroupQueries.paginated._def);
       }
     },
@@ -334,7 +334,7 @@ export const useLinodeMigrateMutation = (id: number) => {
             placementGroupQueries.placementGroup(data.placement_group.id)
               .queryKey
           );
-          queryClient.invalidateQueries(placementGroupQueries.all.queryKey);
+          queryClient.invalidateQueries(placementGroupQueries.all._def);
           queryClient.invalidateQueries(placementGroupQueries.paginated._def);
         }
       },
