@@ -2,6 +2,9 @@ import { oneClickAppFactory } from 'src/factories/stackscripts';
 
 import type { OCA } from './types';
 
+/**
+ * @deprecated See oneClickAppsv2.ts
+ */
 export const oneClickApps: OCA[] = [
   {
     alt_description: 'Free open source control panel with a mobile app.',
@@ -115,6 +118,27 @@ export const oneClickApps: OCA[] = [
     summary:
       'Open source workflow management platform for data engineering pipelines.',
     website: 'https://airflow.apache.org/',
+  },
+  {
+    alt_description: 'Open source real-time data stream management cluster.',
+    alt_name: 'Data stream publisher-subscriber cluster',
+    categories: ['Development'],
+    colors: {
+      end: '5CA2A2',
+      start: '00C7D4',
+    },
+    description: `Apache Kafka supports a wide range of applications from log aggregation to real-time analytics. Kafka provides a foundation for building data pipelines, event-driven architectures, or stream processing applications.`,
+    logo_url: 'apachekafka.svg',
+    name: 'Apache Kafka Cluster',
+    related_guides: [
+      {
+        href:
+          'https://www.linode.com/docs/products/tools/marketplace/guides/apache-kafka/',
+        title: 'Deploy an Apache Kafka cluster through the Linode Marketplace',
+      },
+    ],
+    summary: 'Open source data streaming.',
+    website: 'https://kafka.apache.org/',
   },
   {
     alt_description:
@@ -273,6 +297,29 @@ export const oneClickApps: OCA[] = [
     summary:
       'All-in-one database deployment, management, and monitoring system.',
     website: 'https://docs.severalnines.com/docs/clustercontrol/',
+  },
+  {
+    alt_description:
+      'Highly available, five-node enterprise NoSQL database cluster.',
+    alt_name: 'Couchbase Enterprise Server Cluster',
+    categories: ['Databases'],
+    colors: {
+      end: 'EC1018',
+      start: '333333',
+    },
+    description: `Couchbase Enterprise Server is a high-performance NoSQL database, built for scale. Couchbase Server is designed with memory-first architecture, built-in cache and workload isolation.`,
+    logo_url: 'couchbase.svg',
+    name: 'Couchbase Cluster',
+    related_guides: [
+      {
+        href:
+          'https://www.linode.com/docs/products/tools/marketplace/guides/couchbase/',
+        title:
+          'Deploy a Couchbase Enterprise Server cluster through the Linode Marketplace',
+      },
+    ],
+    summary: 'NoSQL production database cluster.',
+    website: 'https://www.couchbase.com/',
   },
   {
     alt_description:
