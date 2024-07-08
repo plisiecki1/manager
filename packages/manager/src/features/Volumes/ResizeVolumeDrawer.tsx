@@ -8,7 +8,7 @@ import { ActionsPanel } from 'src/components/ActionsPanel/ActionsPanel';
 import { Drawer } from 'src/components/Drawer';
 import { Notice } from 'src/components/Notice/Notice';
 import { useEventsPollingActions } from 'src/queries/events/events';
-import { useGrants } from 'src/queries/profile';
+import { useGrants } from 'src/queries/profile/profile';
 import {
   useResizeVolumeMutation,
   useVolumeTypesQuery,
@@ -98,7 +98,7 @@ export const ResizeVolumeDrawer = (props: Props) => {
         {isReadOnly && (
           <Notice
             spacingBottom={0}
-            text="You don't have permission to edit this volume."
+            text="You don't have permission to resize this volume."
             variant="error"
           />
         )}

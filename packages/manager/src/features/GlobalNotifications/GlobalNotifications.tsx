@@ -7,8 +7,8 @@ import { switchAccountSessionContext } from 'src/context/switchAccountSessionCon
 import { SwitchAccountSessionDialog } from 'src/features/Account/SwitchAccounts/SwitchAccountSessionDialog';
 import { useDismissibleNotifications } from 'src/hooks/useDismissibleNotifications';
 import { useFlags } from 'src/hooks/useFlags';
-import { useProfile } from 'src/queries/profile';
-import { useSecurityQuestions } from 'src/queries/securityQuestions';
+import { useProfile } from 'src/queries/profile/profile';
+import { useSecurityQuestions } from 'src/queries/profile/securityQuestions';
 
 import { SessionExpirationDialog } from '../Account/SwitchAccounts/SessionExpirationDialog';
 import { APIMaintenanceBanner } from './APIMaintenanceBanner';
@@ -17,7 +17,9 @@ import { ComplianceUpdateModal } from './ComplianceUpdateModal';
 import { EmailBounceNotificationSection } from './EmailBounce';
 import { RegionStatusBanner } from './RegionStatusBanner';
 import { TaxCollectionBanner } from './TaxCollectionBanner';
+import { DesignUpdateBanner } from './TokensUpdateBanner';
 import { VerificationDetailsBanner } from './VerificationDetailsBanner';
+
 export const GlobalNotifications = () => {
   const flags = useFlags();
   const { data: profile } = useProfile();
@@ -51,6 +53,7 @@ export const GlobalNotifications = () => {
 
   return (
     <>
+      <DesignUpdateBanner />
       <EmailBounceNotificationSection />
       <RegionStatusBanner />
       <AbuseTicketBanner />

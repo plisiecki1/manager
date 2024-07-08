@@ -6,6 +6,7 @@ export type Capabilities =
   | 'Block Storage Migrations'
   | 'Cloud Firewall'
   | 'Disk Encryption'
+  | 'Distributed Plans'
   | 'GPU Linodes'
   | 'Kubernetes'
   | 'Linodes'
@@ -25,7 +26,7 @@ export interface DNSResolvers {
 
 export type RegionStatus = 'ok' | 'outage';
 
-export type RegionSite = 'core' | 'edge';
+export type RegionSite = 'core' | 'distributed' | 'edge';
 
 export interface Region {
   id: string;
@@ -47,6 +48,6 @@ export interface RegionAvailability {
   region: string;
 }
 
-type ContinentCode = keyof typeof COUNTRY_CODE_TO_CONTINENT_CODE;
+type CountryCode = keyof typeof COUNTRY_CODE_TO_CONTINENT_CODE;
 
-export type Country = Lowercase<ContinentCode>;
+export type Country = Lowercase<CountryCode>;

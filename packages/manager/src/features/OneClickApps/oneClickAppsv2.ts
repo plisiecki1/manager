@@ -2466,12 +2466,13 @@ export const oneClickApps: Record<number, OCA> = {
       start: '333333',
     },
     description: `Couchbase Enterprise Server is a high-performance NoSQL database, built for scale. Couchbase Server is designed with memory-first architecture, built-in cache and workload isolation.`,
+    isNew: true,
     logo_url: 'couchbase.svg',
     name: 'Couchbase Cluster',
     related_guides: [
       {
         href:
-          'https://www.linode.com/docs/products/tools/marketplace/guides/couchbase/',
+          'https://www.linode.com/docs/products/tools/marketplace/guides/couchbase-cluster/',
         title:
           'Deploy a Couchbase Enterprise Server cluster through the Linode Marketplace',
       },
@@ -2488,12 +2489,13 @@ export const oneClickApps: Record<number, OCA> = {
       start: '00C7D4',
     },
     description: `Apache Kafka supports a wide range of applications from log aggregation to real-time analytics. Kafka provides a foundation for building data pipelines, event-driven architectures, or stream processing applications.`,
+    isNew: true,
     logo_url: 'apachekafka.svg',
     name: 'Apache Kafka Cluster',
     related_guides: [
       {
         href:
-          'https://www.linode.com/docs/products/tools/marketplace/guides/apache-kafka/',
+          'https://www.linode.com/docs/products/tools/marketplace/guides/apache-kafka-cluster/',
         title: 'Deploy an Apache Kafka cluster through the Linode Marketplace',
       },
     ],

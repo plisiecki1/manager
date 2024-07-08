@@ -11,7 +11,7 @@ import { FormHelperText } from 'src/components/FormHelperText';
 import { Notice } from 'src/components/Notice/Notice';
 import { LinodeSelect } from 'src/features/Linodes/LinodeSelect/LinodeSelect';
 import { useEventsPollingActions } from 'src/queries/events/events';
-import { useGrants } from 'src/queries/profile';
+import { useGrants } from 'src/queries/profile/profile';
 import { useAttachVolumeMutation } from 'src/queries/volumes/volumes';
 import { getAPIErrorFor } from 'src/utilities/getAPIErrorFor';
 
@@ -98,7 +98,7 @@ export const AttachVolumeDrawer = React.memo((props: Props) => {
       <form onSubmit={formik.handleSubmit}>
         {isReadOnly && (
           <Notice
-            text="You don't have permission to edit this volume."
+            text="You don't have permission to attach this volume."
             variant="error"
           />
         )}

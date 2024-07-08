@@ -2,12 +2,14 @@ import {
   CreateImagePayload,
   Image,
   ImageUploadPayload,
+  UpdateImageRegionsPayload,
   UploadImageResponse,
   createImage,
   deleteImage,
   getImage,
   getImages,
   updateImage,
+  updateImageRegions,
   uploadImage,
 } from '@linode/api-v4';
 import {
@@ -22,7 +24,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { EventHandlerData } from 'src/hooks/useEventHandlers';
 import { getAll } from 'src/utilities/getAll';
 
-import { profileQueries } from './profile';
+import { profileQueries } from './profile/profile';
 
 export const getAllImages = (
   passedParams: Params = {},
@@ -83,7 +85,7 @@ export const useUpdateImageMutation = () => {
     { description?: string; imageId: string; label?: string; tags?: string[] }
   >({
     mutationFn: ({ description, imageId, label, tags }) =>
-      updateImage(imageId, label, description, tags),
+      updateImage(imageId, { description, label, tags }),
     onSuccess(image) {
       queryClient.invalidateQueries(imageQueries.paginated._def);
       queryClient.setQueryData<Image>(
@@ -129,6 +131,21 @@ export const useUploadImageMutation = () => {
       queryClient.setQueryData<Image>(
         imageQueries.image(data.image.id).queryKey,
         data.image
+      );
+    },
+  });
+};
+
+export const useUpdateImageRegionsMutation = (imageId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation<Image, APIError[], UpdateImageRegionsPayload>({
+    mutationFn: (data) => updateImageRegions(imageId, data),
+    onSuccess(image) {
+      queryClient.invalidateQueries(imageQueries.paginated._def);
+      queryClient.invalidateQueries(imageQueries.all._def);
+      queryClient.setQueryData<Image>(
+        imageQueries.image(image.id).queryKey,
+        image
       );
     },
   });

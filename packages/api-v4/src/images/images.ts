@@ -1,5 +1,6 @@
 import {
   createImageSchema,
+  updateImageRegionsSchema,
   updateImageSchema,
   uploadImageSchema,
 } from '@linode/validation/lib/images.schema';
@@ -16,6 +17,8 @@ import type {
   CreateImagePayload,
   Image,
   ImageUploadPayload,
+  UpdateImagePayload,
+  UpdateImageRegionsPayload,
   UploadImageResponse,
 } from './types';
 
@@ -57,21 +60,9 @@ export const createImage = (data: CreateImagePayload) => {
  * Updates a private Image that you have permission to read_write.
  *
  * @param imageId { string } ID of the Image to look up.
- * @param label { string } A short description of the Image. Labels cannot contain special characters.
- * @param description { string } A detailed description of this Image.
+ * @param data { UpdateImagePayload } the updated image details
  */
-export const updateImage = (
-  imageId: string,
-  label?: string,
-  description?: string,
-  tags?: string[]
-) => {
-  const data = {
-    ...(label && { label }),
-    ...(description && { description }),
-    ...(tags && { tags }),
-  };
-
+export const updateImage = (imageId: string, data: UpdateImagePayload) => {
   return Request<Image>(
     setURL(`${API_ROOT}/images/${encodeURIComponent(imageId)}`),
     setMethod('PUT'),
@@ -105,5 +96,21 @@ export const uploadImage = (data: ImageUploadPayload) => {
     setURL(`${API_ROOT}/images/upload`),
     setMethod('POST'),
     setData(data, uploadImageSchema)
+  );
+};
+
+/**
+ * updateImageRegions
+ *
+ * Selects the regions to which this image will be replicated.
+ */
+export const updateImageRegions = (
+  imageId: string,
+  data: UpdateImageRegionsPayload
+) => {
+  return Request<Image>(
+    setURL(`${API_ROOT}/images/${encodeURIComponent(imageId)}/regions`),
+    setMethod('POST'),
+    setData(data, updateImageRegionsSchema)
   );
 };

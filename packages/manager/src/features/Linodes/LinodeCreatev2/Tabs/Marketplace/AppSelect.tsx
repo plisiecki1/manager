@@ -1,23 +1,20 @@
-import Grid from '@mui/material/Unstable_Grid2';
-import React from 'react';
-import { useController, useFormContext } from 'react-hook-form';
+import React, { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
 import { Autocomplete } from 'src/components/Autocomplete/Autocomplete';
 import { Box } from 'src/components/Box';
-import { CircularProgress } from 'src/components/CircularProgress';
 import { DebouncedSearchTextField } from 'src/components/DebouncedSearchTextField';
-import { ErrorState } from 'src/components/ErrorState/ErrorState';
+import { Notice } from 'src/components/Notice/Notice';
 import { Paper } from 'src/components/Paper';
 import { Stack } from 'src/components/Stack';
 import { Typography } from 'src/components/Typography';
-import { oneClickApps } from 'src/features/OneClickApps/oneClickAppsv2';
 import { useMarketplaceAppsQuery } from 'src/queries/stackscripts';
 
-import { getDefaultUDFData } from '../StackScripts/UserDefinedFields/utilities';
-import { AppSelectionCard } from './AppSelectionCard';
+import { AppsList } from './AppsList';
 import { categoryOptions } from './utilities';
 
 import type { LinodeCreateFormValues } from '../../utilities';
+import type { AppCategory } from 'src/features/OneClickApps/types';
 
 interface Props {
   /**
@@ -28,65 +25,23 @@ interface Props {
 
 export const AppSelect = (props: Props) => {
   const { onOpenDetailsDrawer } = props;
-  const { setValue } = useFormContext<LinodeCreateFormValues>();
-  const { field } = useController<LinodeCreateFormValues, 'stackscript_id'>({
-    name: 'stackscript_id',
-  });
 
-  const { data: stackscripts, error, isLoading } = useMarketplaceAppsQuery(
-    true
-  );
+  const {
+    formState: { errors },
+  } = useFormContext<LinodeCreateFormValues>();
 
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <Box
-          alignItems="center"
-          display="flex"
-          height="100%"
-          justifyContent="center"
-          width="100%"
-        >
-          <CircularProgress />
-        </Box>
-      );
-    }
+  const { isLoading } = useMarketplaceAppsQuery(true);
 
-    if (error) {
-      return <ErrorState errorText={error?.[0].reason} />;
-    }
-
-    return (
-      <Grid container spacing={2}>
-        {stackscripts?.map((stackscript) => {
-          if (!oneClickApps[stackscript.id]) {
-            return null;
-          }
-          return (
-            <AppSelectionCard
-              onSelect={() => {
-                setValue(
-                  'stackscript_data',
-                  getDefaultUDFData(stackscript.user_defined_fields)
-                );
-                field.onChange(stackscript.id);
-              }}
-              checked={field.value === stackscript.id}
-              iconUrl={`/assets/${oneClickApps[stackscript.id].logo_url}`}
-              key={stackscript.id}
-              label={stackscript.label}
-              onOpenDetailsDrawer={() => onOpenDetailsDrawer(stackscript.id)}
-            />
-          );
-        })}
-      </Grid>
-    );
-  };
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState<AppCategory>();
 
   return (
     <Paper>
       <Stack spacing={2}>
         <Typography variant="h2">Select an App</Typography>
+        {errors.stackscript_id?.message && (
+          <Notice text={errors.stackscript_id.message} variant="error" />
+        )}
         <Stack direction="row" flexWrap="wrap" gap={1}>
           <DebouncedSearchTextField
             InputProps={{ sx: { maxWidth: 'unset !important' } }}
@@ -97,7 +52,9 @@ export const AppSelect = (props: Props) => {
             label="Search marketplace"
             loading={isLoading}
             noMarginTop
+            onSearch={setQuery}
             placeholder="Search for app name"
+            value={query}
           />
           <Autocomplete
             textFieldProps={{
@@ -106,12 +63,17 @@ export const AppSelect = (props: Props) => {
             }}
             disabled={isLoading}
             label="Select category"
+            onChange={(e, value) => setCategory(value?.label)}
             options={categoryOptions}
             placeholder="Select category"
           />
         </Stack>
         <Box height="500px" sx={{ overflowX: 'hidden', overflowY: 'auto' }}>
-          {renderContent()}
+          <AppsList
+            category={category}
+            onOpenDetailsDrawer={onOpenDetailsDrawer}
+            query={query}
+          />
         </Box>
       </Stack>
     </Paper>

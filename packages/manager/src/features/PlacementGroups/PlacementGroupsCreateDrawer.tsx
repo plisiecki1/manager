@@ -10,6 +10,8 @@ import { Divider } from 'src/components/Divider';
 import { Drawer } from 'src/components/Drawer';
 import { Notice } from 'src/components/Notice/Notice';
 import { RegionSelect } from 'src/components/RegionSelect/RegionSelect';
+import { getNewRegionLabel } from 'src/components/RegionSelect/RegionSelect.utils';
+import { useIsGeckoEnabled } from 'src/components/RegionSelect/RegionSelect.utils';
 import { Stack } from 'src/components/Stack';
 import { TextField } from 'src/components/TextField';
 import { Typography } from 'src/components/Typography';
@@ -34,6 +36,7 @@ import {
 import type { PlacementGroupsCreateDrawerProps } from './types';
 import type { CreatePlacementGroupPayload, Region } from '@linode/api-v4';
 import type { FormikHelpers } from 'formik';
+import type { DisableRegionOption } from 'src/components/RegionSelect/RegionSelect.types';
 
 export const PlacementGroupsCreateDrawer = (
   props: PlacementGroupsCreateDrawerProps
@@ -136,6 +139,36 @@ export const PlacementGroupsCreateDrawer = (
     selectedRegion
   )}`;
 
+  const { isGeckoGAEnabled } = useIsGeckoEnabled();
+
+  const disabledRegions = regions?.reduce<Record<string, DisableRegionOption>>(
+    (acc, region) => {
+      const isRegionAtCapacity = hasRegionReachedPlacementGroupCapacity({
+        allPlacementGroups: allPlacementGroupsInRegion,
+        region,
+      });
+      if (isRegionAtCapacity) {
+        acc[region.id] = {
+          reason: (
+            <>
+              <Typography>
+                You’ve reached the limit of placement groups you can create in
+                this region.
+              </Typography>
+              <Typography mt={2}>
+                {MAXIMUM_NUMBER_OF_PLACEMENT_GROUPS_IN_REGION}{' '}
+                {getMaxPGsPerCustomer(region)}
+              </Typography>
+            </>
+          ),
+          tooltipWidth: 300,
+        };
+      }
+      return acc;
+    },
+    {}
+  );
+
   return (
     <Drawer
       onClose={handleDrawerClose}
@@ -159,7 +192,12 @@ export const PlacementGroupsCreateDrawer = (
             <DescriptionList
               items={[
                 {
-                  description: `${selectedRegion.label} (${selectedRegion.id})`,
+                  description: isGeckoGAEnabled
+                    ? getNewRegionLabel({
+                        includeSlug: true,
+                        region: selectedRegion,
+                      })
+                    : `${selectedRegion.label} (${selectedRegion.id})`,
                   title: 'Region',
                 },
               ]}
@@ -185,39 +223,14 @@ export const PlacementGroupsCreateDrawer = (
               disabled={
                 Boolean(selectedRegionId) || disabledPlacementGroupCreateButton
               }
-              handleDisabledRegion={(region) => {
-                const isRegionAtCapacity = hasRegionReachedPlacementGroupCapacity(
-                  {
-                    allPlacementGroups: allPlacementGroupsInRegion,
-                    region,
-                  }
-                );
-
-                return {
-                  disabled: isRegionAtCapacity,
-                  reason: (
-                    <>
-                      <Typography>
-                        You’ve reached the limit of placement groups you can
-                        create in this region.
-                      </Typography>
-                      <Typography mt={2}>
-                        {MAXIMUM_NUMBER_OF_PLACEMENT_GROUPS_IN_REGION}{' '}
-                        {getMaxPGsPerCustomer(region)}
-                      </Typography>
-                    </>
-                  ),
-                  tooltipWidth: 300,
-                };
-              }}
-              handleSelection={(selection) => {
-                handleRegionSelect(selection);
-              }}
               currentCapability="Placement Group"
+              disableClearable
+              disabledRegions={disabledRegions}
               helperText={values.region && pgRegionLimitHelperText}
+              onChange={(e, region) => handleRegionSelect(region.id)}
               regions={regions ?? []}
-              selectedId={selectedRegionId ?? values.region}
               tooltipText="Only Linode data center regions that support placement groups are listed."
+              value={selectedRegionId ?? values.region}
             />
           )}
           <PlacementGroupsAffinityTypeSelect
